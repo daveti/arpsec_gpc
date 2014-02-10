@@ -242,7 +242,7 @@ static int arpsec_nl_test(struct nlmsghdr *nlh_ptr)
 
 	return 0;
 }
-static void arpsec_nl_reply(arpsec_nlmsg *ptr)
+static int arpsec_nl_reply(arpsec_nlmsg *ptr)
 {
 	/*
 	 * Note: assume this arpsec_nlmsg should be a well-done ARP reply itself.
@@ -265,8 +265,46 @@ static void arpsec_nl_reply(arpsec_nlmsg *ptr)
 	else if (arp->ar_op == htons(ARPOP_RREPLY))
 		arp_send(ARPOP_RREPLY, ETH_P_ARP, dest_ip, dev, src_ip, dest_hw, src_hw, target_hw);
 	else
+	{
 		printk(KERN_ERR "arpsek: arpsec_nl_repaly - unsupported ARP opcode [%u]\n",
 			htons(arp->ar_op));
+		return -1;
+	}
+
+	return 0;
+}
+static int arpsec_nl_bind_v2(arpsec_nlmsg *ptr)
+{
+	struct net_device *dev = ptr->arpsec_dev_ptr;
+	unsigned char *sha;
+	__be32 sip;
+	struct neighbour *n;
+
+	printk(KERN_INFO "arpseck: entering arpsec_nl_bind_v2\n");
+
+	/* Get the sip and sha */
+	sip = *(__be32 *)ptr->arpsec_arp_msg.ar_sip;
+	sha = ptr->arpsec_arp_msg.ar_sha;
+
+	/* Update our ARP tables directly - allow to create */
+	n = __neigh_lookup(&arp_tbl, &sip, dev, 1);
+
+	if (n) {
+		int state = NUD_REACHABLE;
+		int override;
+
+		/* If several different ARP replies follows back-to-back,
+		use the FIRST one. It is possible, if several proxy
+		agents are active. Taking the first reply prevents
+		arp trashing and chooses the fastest router.
+		*/
+		override = time_after(jiffies, n->updated + n->parms->locktime);
+		neigh_update(n, sha, state,
+			     override ? NEIGH_UPDATE_F_OVERRIDE : 0);
+		neigh_release(n);
+	}
+
+	return 0;
 }
 static int arp_req_set(struct net *net, struct arpreq *r,
 			struct net_device *dev);
@@ -359,11 +397,13 @@ static void arpsec_nl_handler(struct sk_buff *skb)
 			break;
 
 		case ARPSEC_NETLINK_OP_REPLY:
-			arpsec_nl_reply(arpsec_nlmsg_ptr);
+			rtn = arpsec_nl_reply(arpsec_nlmsg_ptr);
 			break;
 
 		case ARPSEC_NETLINK_OP_BIND:
-			rtn = arpsec_nl_bind(arpsec_nlmsg_ptr);
+			//rtn = arpsec_nl_bind(arpsec_nlmsg_ptr);
+			//daveti: use v2
+			rtn = arpsec_nl_bind_v2(arpsec_nlmsg_ptr);
 			break;
 
 		case ARPSEC_NETLINK_OP_DELETE:
