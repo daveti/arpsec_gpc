@@ -25,9 +25,9 @@
 #include "tpmw.h"
 
 // Definitions
-#define ARPSEC_ARGUMENTS "shfcandbel:"
+#define ARPSEC_ARGUMENTS "shfcandbetl:"
 #define USAGE \
-    "\nUSAGE: arpsecd [-h] [-l <logfile>] [-s] [-f] [-a] [-c] [-n] [-d] [-b] [-e]\n" \
+    "\nUSAGE: arpsecd [-h] [-l <logfile>] [-s] [-f] [-a] [-c] [-n] [-d] [-b] [-e] [-t]\n" \
     "\n" \
     "where:\n" \
     "   -h - display this help information\n" \
@@ -40,6 +40,7 @@
     "	-d - disable aslFindXXXBindings (only for dev performance debugging).\n" \
     "	-b - disable aslAddBindingsXXX (only for dev performance debugging).\n" \
     "	-e - disable log printing to the standard output.\n" \
+    "	-t - disable TPM function (already return success - only for dev performance debugging).\n" \
     "   -s - simulate the kernel and network traffic\n\n"
 
 //
@@ -105,6 +106,10 @@ int main(int argc, char **argv) {
 	    case 'e': // Disable log printing
 		asLogDisable();
 		tpmw_disable_log();
+		break;
+
+	    case 't': // Disable the TPM function
+		astDisableTPM();
 		break;
 
 	    default:  // Default (unknown)

@@ -26,6 +26,9 @@
 //
 // Module methods
 
+// Disable the TPM function
+void astDisableTPM(void);
+
 // Init the Attest subsystem
 int astInitAttest(int mode);
 	

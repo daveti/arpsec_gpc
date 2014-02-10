@@ -35,6 +35,22 @@
 // Make it zero once debugging is done
 static int	ast_debug_enabled = 1;
 static int	ast_allow_binding;
+static int	ast_allow_tpm = 1;
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Function     : astAllowBinding
+// Description  : Allow binding if no DB entry found during attestation
+//
+// Inputs       : void
+// Outputs      : void
+// Dev          : daveti
+//
+
+void astDisableTPM(void)
+{
+	ast_allow_tpm = 0;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -139,6 +155,10 @@ tpmdb_entry *astFindDBEntry(askRelayMessage *msg)
 
 int astAttestSystem(askRelayMessage *msg)
 {
+	// Check if TPM is disabled
+	if (ast_allow_tpm == 0)
+		return 0;
+
         int sock_fd;
         int ret;
         struct addrinfo hints;
