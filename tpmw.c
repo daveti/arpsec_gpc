@@ -39,6 +39,12 @@ static int				tpmw_aik_pub_key_len;
 
 /* Interface with tpmd and arpsecd */
 
+/* Disable the logging to the standard output */
+void tpmw_disable_log(void)
+{
+	debug_enabled = 0;
+}
+
 /* Init the tpmw with TPM */
 int tpmw_init_tpm(int mode)
 {
@@ -174,7 +180,8 @@ int tpmw_at_req_handler(at_rep *rep, at_req *req, int fake)
 	/* Check if this is UT */
 	if (fake == 1)
 	{
-		printf("tpmw - AT reply will be faked\n");
+		if (debug_enabled == 1)
+			printf("tpmw - AT reply will be faked\n");
 		tpmw_generate_fake_at_rep(rep);
 		return 0;
 	}

@@ -30,9 +30,23 @@
 // Local data
 char *	aslog_filename	= NULL;	    // The filename of the log
 int	aslog_fhandle	= -1;	    // The file handle of the log
+int	aslog_disable   = 0;	    // The flag for disabling the logging
 
 //
 // Module functions
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Function     : asLogDisable
+// Description  : Disable the log print to the standard output
+//
+// Inputs       : void
+// Outputs      : void
+
+void asLogDisable(void)
+{
+	aslog_disable = 1;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -44,6 +58,10 @@ int	aslog_fhandle	= -1;	    // The file handle of the log
 // Outputs	: 0 if successfull, -1 if failure
 
 int asLogMessage( const char *fmt, ... ) {
+
+    // Log disableing
+    if (aslog_disable == 1)
+	return 0;
 
     // Local variables
     char msg[MAX_LOG_MESSAGE_SIZE], msg2[MAX_LOG_MESSAGE_SIZE], tmstr[MAX_LOG_MESSAGE_SIZE];

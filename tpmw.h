@@ -48,6 +48,9 @@ int tpmw_at_req_handler(at_rep *rep, at_req *req, int fake);
 /* Main method to process AT reply */
 int tpmw_at_rep_handler(at_rep *rep);
 
+/* Disable log printing */
+void tpmw_disable_log(void);
+
 
 /* TPM local methods - talking with tcsd */
 

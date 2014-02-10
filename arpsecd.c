@@ -22,11 +22,12 @@
 #include "AsLogic.h"
 #include "AsLog.h"
 #include "AsTMeasure.h"
+#include "tpmw.h"
 
 // Definitions
-#define ARPSEC_ARGUMENTS "shfcandbl:"
+#define ARPSEC_ARGUMENTS "shfcandbel:"
 #define USAGE \
-    "\nUSAGE: arpsecd [-h] [-l <logfile>] [-s] [-f] [-a] [-c] [-n] [-d] [-b]\n" \
+    "\nUSAGE: arpsecd [-h] [-l <logfile>] [-s] [-f] [-a] [-c] [-n] [-d] [-b] [-e]\n" \
     "\n" \
     "where:\n" \
     "   -h - display this help information\n" \
@@ -38,6 +39,7 @@
     "	-n - no logic layer invoked (always return 'untrusted' from logic layer).\n" \
     "	-d - disable aslFindXXXBindings (only for dev performance debugging).\n" \
     "	-b - disable aslAddBindingsXXX (only for dev performance debugging).\n" \
+    "	-e - disable log printing to the standard output.\n" \
     "   -s - simulate the kernel and network traffic\n\n"
 
 //
@@ -98,6 +100,11 @@ int main(int argc, char **argv) {
 
 	    case 'a': // Allow the binding if no DB entry found
 		astAllowBinding();
+		break;
+
+	    case 'e': // Disable log printing
+		asLogDisable();
+		tpmw_disable_log();
 		break;
 
 	    default:  // Default (unknown)

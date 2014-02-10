@@ -16,6 +16,9 @@
 
 //
 // Module methods
+
+// Disable the log print to the standard output
+void asLogDisable(void);
 	
 // Set the log filename (STDERR by default)
 int setAsLogFilename( const char *fname );
