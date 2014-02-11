@@ -398,9 +398,9 @@ int ascProcessArpResponse( askRelayMessage *msg ) {
 
 	    // daveti: Before attesting, the binding needs to be
 	    // added into ARP cache temperarily.
-            ret = asnAddBindingToArpCache(msg);
+            ret = asnAddBindingToArpCacheV2(msg);
             if (ret == -1)
-                asLogMessage("ascProcessArpResponse: Error on asnAddBindingToArpCache() for temp");
+                asLogMessage("ascProcessArpResponse: Error on asnAddBindingToArpCacheV2() for temp");
             else {
                 asLogMessage("ascProcessArpResponse: Info - ARP cache updated for temp");
 		bound = 1;
@@ -468,9 +468,9 @@ int ascProcessArpResponse( askRelayMessage *msg ) {
 		asLogMessage("ascProcessArpResponse: Info - ARP cache updated");
 	else
 	{
-		ret = asnAddBindingToArpCache(msg);
+		ret = asnAddBindingToArpCacheV2(msg);
 		if (ret == -1)
-			asLogMessage("ascProcessArpResponse: Error on asnAddBindingToArpCache()");
+			asLogMessage("ascProcessArpResponse: Error on asnAddBindingToArpCacheV2()");
 		else
 			asLogMessage("ascProcessArpResponse: Info - ARP cache updated");
 	}
@@ -522,9 +522,9 @@ int ascProcessArpResponse( askRelayMessage *msg ) {
 		    msg->target.network, msg->binding.media);
 
 	    // daveti: add the binding into ARP cache
-            ret = asnAddBindingToArpCache(msg);
+            ret = asnAddBindingToArpCacheV2(msg);
             if (ret == -1)
-		asLogMessage("ascProcessArpResponse: Error on asnAddBindingToArpCache()");
+		asLogMessage("ascProcessArpResponse: Error on asnAddBindingToArpCacheV2()");
 	    else
             	asLogMessage("ascProcessArpResponse: Info - ARP cache updated");
 
@@ -671,9 +671,9 @@ int ascProcessRArpResponse( askRelayMessage *msg ) {
 
             // daveti: Before attesting, the binding needs to be
             // added into ARP cache temperarily.
-            ret = asnAddBindingToArpCache(msg);
+            ret = asnAddBindingToArpCacheV2(msg);
             if (ret == -1)
-                asLogMessage("ascProcessRArpResponse: Error on asnAddBindingToArpCache() for temp");
+                asLogMessage("ascProcessRArpResponse: Error on asnAddBindingToArpCacheV2() for temp");
             else {
                 asLogMessage("ascProcessRArpResponse: Info - ARP cache updated for temp");
 		bound = 1;
@@ -730,9 +730,9 @@ int ascProcessRArpResponse( askRelayMessage *msg ) {
 		asLogMessage("ascProcessRArpResponse: Info - ARP cache updated");
 	else
 	{
-        	ret = asnAddBindingToArpCache(msg);
+        	ret = asnAddBindingToArpCacheV2(msg);
         	if (ret == -1)
-                	asLogMessage("ascProcessRArpResponse: Error on asnAddBindingToArpCache()");
+                	asLogMessage("ascProcessRArpResponse: Error on asnAddBindingToArpCacheV2()");
         	else
                 	asLogMessage("ascProcessRArpResponse: Info - ARP cache updated");
 	}
@@ -779,9 +779,9 @@ int ascProcessRArpResponse( askRelayMessage *msg ) {
 		    msg->target.media, msg->binding.network);
 
             // daveti: add the binding into ARP cache
-	    ret = asnAddBindingToArpCache(msg);
+	    ret = asnAddBindingToArpCacheV2(msg);
             if (ret == -1)
-                    asLogMessage("ascProcessRArpResponse: Error on asnAddBindingToArpCache()");
+                    asLogMessage("ascProcessRArpResponse: Error on asnAddBindingToArpCacheV2()");
             else
                     asLogMessage("ascProcessRArpResponse: Info - ARP cache updated");
 

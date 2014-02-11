@@ -49,6 +49,9 @@ void asnTestNetlink(void);
 // Insert the ARP binding into the kernel ARP cache
 int asnAddBindingToArpCache(askRelayMessage *msg_ptr);
 
+// Insert the ARP binding into the kernel ARP cache V2
+int asnAddBindingToArpCacheV2(askRelayMessage *msg_ptr);
+
 // Delete the ARP binding in the kernel ARP cache
 int asnDelBindingInArpCache(askRelayMessage *msg_ptr);
 

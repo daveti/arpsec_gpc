@@ -241,6 +241,9 @@ int asnGenArpReqStruct(askRelayMessage *msg_ptr, struct arpreq *arpReq_ptr, int 
 //
 // Inputs       : arpMsg_ptr - arpmsg struct pointer
 // Outputs      : 0 if successful, -1 if not
+// Note		: This function is not needed as the askRelayMessage contains the arpmsg now
+// 		: Feb 10, 2014
+// 		: daveti
 
 int asnGenArpMsgStruct(askRelayMessage *msg_ptr, arpsec_arpmsg *arpMsg_ptr)
 {
@@ -343,7 +346,7 @@ int asnDelBindingInArpCache(askRelayMessage *msg_ptr)
 
         // Fill up the netlink msg
         tmp_nlmsg.arpsec_opcode = ARPSEC_NETLINK_OP_DELETE;
-        tmp_nlmsg.arpsec_dev_ptr = msg_ptr->dev_ptr;
+        tmp_nlmsg.arpsec_dev_ptr = msg_ptr->rlmsg.arpsec_dev_ptr;
         memcpy(&(tmp_nlmsg.arpsec_arp_req), &arpReq, sizeof(arpReq));
         memcpy(NLMSG_DATA(nlh), &tmp_nlmsg, sizeof(tmp_nlmsg));
 
@@ -368,6 +371,71 @@ int asnDelBindingInArpCache(askRelayMessage *msg_ptr)
 
         free(nlh);
         return rtn;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Function     : asnAddBindingToArpCacheV2
+// Description  : add the binding into kernel ARP cache version 2
+//
+// Inputs       : askRelayMessage pointer
+// Outputs      : 0 if successful, -1 if not
+// Note		: version 2 is different with the original function which simulates
+// 		: the ioctl() in the kernel space to add/create the new ARP binding.
+// 		: version 2 is using __neighbor_xxx() functions in the kernel directly
+// 		: and taking the advantage of modified askRelayMessage structure.
+// 		: Feb 10, 2014
+// 		: daveti
+
+int asnAddBindingToArpCacheV2(askRelayMessage *msg_ptr)
+{
+	struct nlmsghdr *nlh;
+	struct iovec iov;
+	struct msghdr msg;
+	arpsec_nlmsg tmp_nlmsg;
+	int rtn = 0;
+
+	// Init the stack struct to avoid potential error
+	memset(&iov, 0, sizeof(iov));
+	memset(&msg, 0, sizeof(msg));
+	memset(&tmp_nlmsg, 0, sizeof(tmp_nlmsg));
+
+	// Create the nelink msg
+	nlh = (struct nlmsghdr *)malloc(NLMSG_SPACE(sizeof(arpsec_nlmsg)));
+	memset(nlh, 0, NLMSG_SPACE(sizeof(arpsec_nlmsg)));
+	nlh->nlmsg_len = NLMSG_SPACE(sizeof(arpsec_nlmsg));
+	nlh->nlmsg_pid = arpsec_pid;
+	nlh->nlmsg_flags = 0;
+
+	// Fill up the netlink msg
+	tmp_nlmsg.arpsec_opcode = ARPSEC_NETLINK_OP_BIND;
+	tmp_nlmsg.arpsec_dev_ptr = msg_ptr->rlmsg.arpsec_dev_ptr;
+	memcpy(&(tmp_nlmsg.arpsec_arp_msg),
+		&(msg_ptr->rlmsg.arpsec_arp_msg),
+		sizeof(arpsec_arpmsg));
+	memcpy(NLMSG_DATA(nlh), &tmp_nlmsg, sizeof(tmp_nlmsg));
+
+	// Create the socket msg
+	iov.iov_base = (void *)nlh;
+	iov.iov_len = nlh->nlmsg_len;
+	msg.msg_name = (void *)&arpsec_nl_dest_addr;
+	msg.msg_namelen = sizeof(arpsec_nl_dest_addr);
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+
+	// Send the msg to the kernel
+	rtn = sendmsg(arpsec_sock_fd, &msg, 0);
+	if (rtn == -1)
+	{
+		asLogMessage("asnAddBindingToArpCacheV2: Error on sending netlink bind msg to the kernel [%s]",
+				strerror(errno));
+		free(nlh);
+		return rtn;
+	}
+
+	asLogMessage("asnAddBindingToArpCacheV2: Info - send netlink bind msg to the kernel");
+	free(nlh);
+	return rtn;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -411,7 +479,7 @@ int asnAddBindingToArpCache(askRelayMessage *msg_ptr)
 
 	// Fill up the netlink msg
 	tmp_nlmsg.arpsec_opcode = ARPSEC_NETLINK_OP_BIND;
-	tmp_nlmsg.arpsec_dev_ptr = msg_ptr->dev_ptr;
+	tmp_nlmsg.arpsec_dev_ptr = msg_ptr->rlmsg.arpsec_dev_ptr;
 	memcpy(&(tmp_nlmsg.arpsec_arp_req), &arpReq, sizeof(arpReq));
 	memcpy(NLMSG_DATA(nlh), &tmp_nlmsg, sizeof(tmp_nlmsg));
 
@@ -438,6 +506,7 @@ int asnAddBindingToArpCache(askRelayMessage *msg_ptr)
 	return rtn;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Function     : asnReplyToArpRequest
@@ -445,20 +514,23 @@ int asnAddBindingToArpCache(askRelayMessage *msg_ptr)
 //
 // Inputs       : askRelayMessage pointer
 // Outputs      : 0 if successful, -1 if not
+// Note		: asnGenArpMsgStruct is not needed now
+// 		: Feb 10, 2014
+// 		: daveti
 
 int asnReplyToArpRequest(askRelayMessage *msg_ptr)
 {
         struct nlmsghdr *nlh;
         struct iovec iov;
         struct msghdr msg;
-	arpsec_arpmsg arpMsg;
+	//arpsec_arpmsg arpMsg;
 	arpsec_nlmsg tmp_nlmsg;
         int rtn = 0;
 
         // Init the stack struct to avoid potential error
         memset(&iov, 0, sizeof(iov));
         memset(&msg, 0, sizeof(msg));
-	memset(&arpMsg, 0, sizeof(arpMsg));
+	//memset(&arpMsg, 0, sizeof(arpMsg));
 	memset(&tmp_nlmsg, 0, sizeof(tmp_nlmsg));
 
         // Create the nelink msg
@@ -469,6 +541,7 @@ int asnReplyToArpRequest(askRelayMessage *msg_ptr)
         nlh->nlmsg_flags = 0;
 
         // Create the arpmsg structure
+        /*
 	rtn = asnGenArpMsgStruct(msg_ptr, &arpMsg);
 	if (rtn == -1)
 	{
@@ -476,11 +549,15 @@ int asnReplyToArpRequest(askRelayMessage *msg_ptr)
 		free(nlh);
 		return -1;
 	}
+	*/
 
 	// Fill up the netlink msg
 	tmp_nlmsg.arpsec_opcode = ARPSEC_NETLINK_OP_REPLY;
-	tmp_nlmsg.arpsec_dev_ptr = msg_ptr->dev_ptr;
-	memcpy(&(tmp_nlmsg.arpsec_arp_msg), &arpMsg, sizeof(arpMsg));
+	tmp_nlmsg.arpsec_dev_ptr = msg_ptr->rlmsg.arpsec_dev_ptr;
+	//memcpy(&(tmp_nlmsg.arpsec_arp_msg), &arpMsg, sizeof(arpMsg));
+	memcpy(&(tmp_nlmsg.arpsec_arp_msg),
+		&(msg_ptr->rlmsg.arpsec_arp_msg),
+		sizeof(arpsec_arpmsg));
 	memcpy(NLMSG_DATA(nlh), &tmp_nlmsg, sizeof(tmp_nlmsg));
 
         // Create the socket msg

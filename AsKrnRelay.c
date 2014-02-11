@@ -914,9 +914,12 @@ askRelayMessage * askConvertArpmsg( arpsec_rlmsg *rlmsg_ptr) {
 				break;
 		}
 
-		// Save the net device ptr
+		// Save the whole rlmsg into the askRelayMessage
+		// The rlmsg would help the netlink communication
+		// Feb 10, 2014
+		// daveti
 		if (msg)
-			msg->dev_ptr = dev_ptr;
+			memcpy(&(msg->rlmsg), rlmsg_ptr, sizeof(arpsec_rlmsg));
 	}
 
 	return msg;

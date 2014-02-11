@@ -27,9 +27,6 @@
 #define ARPSEC_DEBUGFS			"/sys/kernel/debug"
 #define ARPSEC_RELAY_FILE		"/sys/kernel/debug/arpsec_cpu"
 #define ARPSEC_RELAY_FILE_BUFF		(strlen(ARPSEC_RELAY_FILE)+2)
-#define ARPSEC_ETH_ALEN			6  // Length of ethernet (hardware) address
-#define ARPSEC_IPV4_ALEN		4  // Length of IPv4 address
-#define ARPSEC_ARP_16BIT		2  // 16-bit used by ARP
 #define ARPSEC_MAX_NUM_OF_CPUS		12 // Max number of CPUs
 #define ARPSEC_PKG_SIZE			28 // Size of ARP pkg
 #define ARPSEC_RELAY_BUFFLEN		280// Length of the buffer to read from relay
@@ -47,24 +44,6 @@
 #define ARPSEC_ARPOP_REPLY	2
 #define ARPSEC_ARPOP_RREQUEST	3
 #define ARPSEC_ARPOP_RREPLY	4
-
-// Linux Kernel ARP/RARP msg data structure
-typedef struct _arpmsg {
-        unsigned char 	ar_hrd[ARPSEC_ARP_16BIT];         /* format of hardware address   */
-        unsigned char	ar_pro[ARPSEC_ARP_16BIT];         /* format of protocol address   */
-        unsigned char   ar_hln;         	/* length of hardware address   */
-        unsigned char   ar_pln;         	/* length of protocol address   */
-        unsigned char	ar_op[ARPSEC_ARP_16BIT];          /* ARP opcode (command)         */
-        unsigned char           ar_sha[ARPSEC_ETH_ALEN];       /* sender hardware address      */
-        unsigned char           ar_sip[ARPSEC_IPV4_ALEN];              /* sender IP address            */
-        unsigned char           ar_tha[ARPSEC_ETH_ALEN];       /* target hardware address      */
-        unsigned char           ar_tip[ARPSEC_IPV4_ALEN];              /* target IP address            */
-} arpsec_arpmsg;
-
-typedef struct _arpsec_rlmsg {
-	arpsec_arpmsg	arpsec_arp_msg;
-	void		*arpsec_dev_ptr;
-} arpsec_rlmsg;
 
 // Add support for global relay queue
 // to handle multiple msgs from the kernel
