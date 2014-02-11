@@ -241,9 +241,6 @@ int asnGenArpReqStruct(askRelayMessage *msg_ptr, struct arpreq *arpReq_ptr, int 
 //
 // Inputs       : arpMsg_ptr - arpmsg struct pointer
 // Outputs      : 0 if successful, -1 if not
-// Note		: This function is not needed as the askRelayMessage contains the arpmsg now
-// 		: Feb 10, 2014
-// 		: daveti
 
 int asnGenArpMsgStruct(askRelayMessage *msg_ptr, arpsec_arpmsg *arpMsg_ptr)
 {
@@ -514,23 +511,20 @@ int asnAddBindingToArpCache(askRelayMessage *msg_ptr)
 //
 // Inputs       : askRelayMessage pointer
 // Outputs      : 0 if successful, -1 if not
-// Note		: asnGenArpMsgStruct is not needed now
-// 		: Feb 10, 2014
-// 		: daveti
 
 int asnReplyToArpRequest(askRelayMessage *msg_ptr)
 {
         struct nlmsghdr *nlh;
         struct iovec iov;
         struct msghdr msg;
-	//arpsec_arpmsg arpMsg;
+	arpsec_arpmsg arpMsg;
 	arpsec_nlmsg tmp_nlmsg;
         int rtn = 0;
 
         // Init the stack struct to avoid potential error
         memset(&iov, 0, sizeof(iov));
         memset(&msg, 0, sizeof(msg));
-	//memset(&arpMsg, 0, sizeof(arpMsg));
+	memset(&arpMsg, 0, sizeof(arpMsg));
 	memset(&tmp_nlmsg, 0, sizeof(tmp_nlmsg));
 
         // Create the nelink msg
@@ -541,7 +535,9 @@ int asnReplyToArpRequest(askRelayMessage *msg_ptr)
         nlh->nlmsg_flags = 0;
 
         // Create the arpmsg structure
-        /*
+        // NOTE: this arpmsg structure is different with
+        // the one contained in the rlmsg, as we are
+        // constructing the reply based on the request.
 	rtn = asnGenArpMsgStruct(msg_ptr, &arpMsg);
 	if (rtn == -1)
 	{
@@ -549,15 +545,11 @@ int asnReplyToArpRequest(askRelayMessage *msg_ptr)
 		free(nlh);
 		return -1;
 	}
-	*/
 
 	// Fill up the netlink msg
 	tmp_nlmsg.arpsec_opcode = ARPSEC_NETLINK_OP_REPLY;
 	tmp_nlmsg.arpsec_dev_ptr = msg_ptr->rlmsg.arpsec_dev_ptr;
-	//memcpy(&(tmp_nlmsg.arpsec_arp_msg), &arpMsg, sizeof(arpMsg));
-	memcpy(&(tmp_nlmsg.arpsec_arp_msg),
-		&(msg_ptr->rlmsg.arpsec_arp_msg),
-		sizeof(arpsec_arpmsg));
+	memcpy(&(tmp_nlmsg.arpsec_arp_msg), &arpMsg, sizeof(arpMsg));
 	memcpy(NLMSG_DATA(nlh), &tmp_nlmsg, sizeof(tmp_nlmsg));
 
         // Create the socket msg

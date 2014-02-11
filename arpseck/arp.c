@@ -266,7 +266,7 @@ static int arpsec_nl_reply(arpsec_nlmsg *ptr)
 		arp_send(ARPOP_RREPLY, ETH_P_ARP, dest_ip, dev, src_ip, dest_hw, src_hw, target_hw);
 	else
 	{
-		printk(KERN_ERR "arpsek: arpsec_nl_repaly - unsupported ARP opcode [%u]\n",
+		printk(KERN_ERR "arpseck: arpsec_nl_reply - unsupported ARP opcode [%u]\n",
 			htons(arp->ar_op));
 		return -1;
 	}
