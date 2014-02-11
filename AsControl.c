@@ -835,16 +835,12 @@ float timeuse = 0;
 //daveti: timing for ARP response processing
 {
 gettimeofday(&tpstart,NULL);
-
 	ret = ascProcessArpResponse( msg );
-
 //daveti: end timing
 gettimeofday(&tpend,NULL);
 timeuse=1000000*(tpend.tv_sec-tpstart.tv_sec)+tpend.tv_usec-tpstart.tv_usec;
-timeuse/=1000000;
-asLogMessage("arpsec - Total time on ascProcessArpResponse_time() is [%f] ms", timeuse);
+asLogMessage("arpsec - Total time on ascProcessArpResponse_time() is [%f] us", timeuse);
 }
-
 	break;
 
 	case RFC_903_ARP_RREQ:   // ARP Reverse Request
@@ -1004,15 +1000,11 @@ int ascControlLoop( int mode ) {
 //daveti: timing
 timeuse = 0;
 gettimeofday(&tpstart,NULL);
-
 	    ascProcessMessage(msg);
-
 //daveti: timing end
 gettimeofday(&tpend,NULL);
 timeuse=1000000*(tpend.tv_sec-tpstart.tv_sec)+tpend.tv_usec-tpstart.tv_usec;
-timeuse/=1000000;
-asLogMessage("arpsec - Total time on ascProcessMessage() is [%f] ms", timeuse);
-
+asLogMessage("arpsec - Total time on ascProcessMessage() is [%f] us", timeuse);
 	    askReleaseBuffer(msg);
 	}
 

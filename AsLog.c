@@ -175,10 +175,14 @@ void asStopMetricsTimer( char *label ) {
     struct timeval now;
     long tm; 
 
+    // Log disableing
+    if (aslog_disable == 1)
+	return;
+
     // Get the time and log it
     gettimeofday( &now, NULL );
     tm = asCompareTimes( asMetricTimer, now );
-    asLogMessage( "METRIC: %s : %lu", label, tm );
+    asLogMessage( "METRIC: %s : [%lu] us", label, tm );
     return;
 }
 

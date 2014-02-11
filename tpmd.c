@@ -267,8 +267,8 @@ gettimeofday(&tpstart,NULL);
 //daveti: end timing
 gettimeofday(&tpend,NULL);
 timeuse=1000000*(tpend.tv_sec-tpstart.tv_sec)+tpend.tv_usec-tpstart.tv_usec;
-timeuse/=1000000;
-printf("tpmd - Total time on tpmw_at_req_handler() and send() is [%f] ms\n", timeuse);
+if (debug_enabled == 1)
+printf("tpmd - Total time on tpmw_at_req_handler() and send() is [%f] us\n", timeuse);
 
 			}
 

@@ -329,8 +329,7 @@ gettimeofday(&tpstart1,NULL);
 //daveti: timing end for AT reply
 gettimeofday(&tpend1,NULL);
 timeuse1=1000000*(tpend1.tv_sec-tpstart1.tv_sec)+tpend1.tv_usec-tpstart1.tv_usec;
-timeuse1/=1000000;
-asLogMessage("Total time on tpmw_at_rep_handler_in_attestation() is [%f] ms", timeuse1);
+asLogMessage("Total time on tpmw_at_rep_handler_in_attestation() is [%f] us", timeuse1);
 
 			if (ret != 0)
 			{
@@ -356,8 +355,7 @@ close:
 //daveti timing end
 gettimeofday(&tpend,NULL);
 timeuse=1000000*(tpend.tv_sec-tpstart.tv_sec)+tpend.tv_usec-tpstart.tv_usec;
-timeuse/=1000000;
-asLogMessage("Total time on Attestation_Run() is [%f] ms", timeuse);
+asLogMessage("Total time on Attestation_Run() is [%f] us", timeuse);
 
 	return ret;
 }
