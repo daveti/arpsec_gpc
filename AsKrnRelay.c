@@ -767,6 +767,16 @@ int askCheckMacBroadcast(char *mac_ptr)
 // Note 2	: '-' may cause trouble too - replace it with '_' here. Actually
 //		: the mapping between original hostname and the system name are not
 //		: 1:1 now. But consider the limitation of gprolog naming, K.I.S.S.
+// Note 3	: Well...Remember we are doing the ARP security? For the first ARP reply
+// 		: we have to verify the trust of the msg before we could add this ARP
+// 		: binding into the ARP cache. However, this function call happens earlier
+// 		: than this, even earlier than the logic verification. So, this function
+// 		: may drag down the whole performance...Finally, we find this unstable
+// 		: factor for the 100 ms ping RTT is this function - getnameinfo().
+// 		: The solution is simple - we will use IP address as the host identifier.
+// 		: Again, this is not the perfect solution. K.I.S.S.
+// 		: Feb 11, 2014
+// 		: daveti
 // Inputs       : ip_ptr - IP dot string pointer - char *
 // Outputs      : sys - char *
 // Dev          : daveti
@@ -780,6 +790,9 @@ char * askGetSystemName(char *ip_ptr)
 	int i;
 	char *sys;
 
+/*
+ * See Note 3!
+ *
 	// Construct the socket address
 	inet_pton(AF_INET, ip_ptr, &(sa.sin_addr));
 
@@ -800,6 +813,11 @@ char * askGetSystemName(char *ip_ptr)
 		asLogMessage("Info - got the remote hostname [%s] for IP [%s]",
 				hbuf, ip_ptr);
 
+*/
+
+	// Fake the remote hostname using IP address
+	strncpy(hbuf, ip_ptr, NI_MAXHOST-1);
+	
 	// Construct the system name string
 	sys = (char *)malloc(ARPSEC_HOSTNAME_LEN);
         snprintf(sys, ARPSEC_HOSTNAME_LEN, "%s", "sys");
@@ -813,7 +831,9 @@ char * askGetSystemName(char *ip_ptr)
 			sys[rtn + i] = '_';
 	}
 	sys[rtn + i] = '\0';
-		
+	
+	asLogMessage("Info - fake the remote hostname [%s] for IP [%s]",
+			sys, ip_ptr);	
 	return sys;
 }
 
