@@ -105,6 +105,7 @@ int main(int argc, char **argv) {
 
 	    case 'e': // Disable log printing
 		asLogDisable();
+		astDisableDebug();
 		tpmw_disable_log();
 		break;
 

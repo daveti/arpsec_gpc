@@ -37,6 +37,21 @@ static int	ast_debug_enabled = 1;
 static int	ast_allow_binding;
 static int	ast_allow_tpm = 1;
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Function     : astDisableDebug
+// Description  : Disable debug logging
+//
+// Inputs       : void
+// Outputs      : void
+// Dev          : daveti
+
+void astDisableDebug(void)
+{
+        ast_debug_enabled = 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Function     : astAllowBinding

@@ -26,6 +26,9 @@
 //
 // Module methods
 
+// Disable debug logging
+void astDisableDebug(void);
+
 // Disable the TPM function
 void astDisableTPM(void);
 
